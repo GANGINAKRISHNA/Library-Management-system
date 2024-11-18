@@ -1,0 +1,58 @@
+Retrieve the total number of books published by each publisher.
+SQL query:
+SELECT p.pname, COUNT(b.bookid) as total_books_published
+FROM dmql.publisher p
+JOIN dmql.book b ON p.pid = b.pid
+GROUP BY p.pname
+ORDER BY total_books_published DESC;
+
+Query to find the number of books issued by each library branch:
+vbnetSELECT lb.branchname, COUNT(*) AS num_books_issued
+FROM dmql.issue i
+INNER JOIN dmql.librarybranch lb ON i.branchid = lb.branchid
+GROUP BY lb.branchname;
+
+Query to find the most popular book in each library branch based on the number of times it has been issued:
+SELECT lb.branchname, b.title, COUNT(*) AS num_times_issued
+FROM dmql.issue i
+INNER JOIN dmql.book b ON i.bookid = b.bookid
+INNER JOIN dmql.librarybranch lb ON i.branchid = lb.branchid
+GROUP BY lb.branchname, b.title
+ORDER BY lb.branchname, num_times_issued DESC;
+
+Query to find the number of books issued to each cardholder:
+SELECT c.name, COUNT(*) AS num_books_issued
+FROM dmql.issue i
+INNER JOIN dmql.card c ON i.card_no = c.card_no
+GROUP BY c.name;
+Retrieve the books published in the year 2022 with their title and publisher name, sorted by the number of books published by each publisher.
+SELECT b.title, p.pname, COUNT(b.bookid) as total_books_published
+FROM dmql.publisher p
+JOIN dmql.book b ON p.pid = b.pid
+WHERE b.pubyear = '2022'
+GROUP BY b.title, p.pname
+ORDER BY total_books_published DESC;
+
+Retrieve the books that have been issued, along with their title, branch name, card holder name, and issue date, sorted by the issue date in descending order.
+SELECT b.title, lb.branchname, c.name, i.date_out
+FROM dmql.book b
+JOIN dmql.issue i ON b.bookid = i.bookid
+JOIN dmql.librarybranch lb ON i.branchid = lb.branchid
+JOIN dmql.card c ON i.card_no = c.card_no
+ORDER BY i.date_out DESC;
+
+Retrieve the top 3 card holders who have issued the maximum number of books, along with their name and the total number of books issued.
+SELECT c.name, COUNT(i.bookid) as total_books_issued
+FROM dmql.card c
+LEFT JOIN dmql.issue i ON c.card_no = i.card_no
+GROUP BY c.name
+ORDER BY total_books_issued DESC
+LIMIT 3;
+This query retrieves the name of all library cardholders, the number of books they have issued, and their account status (active or inactive) based on the number of books they have issued. The results are grouped by cardholder and ordered in descending order of the number of books issued.
+SELECT card.name, 
+       COUNT(issue.card_no) AS num_books_issued,
+       CASE WHEN COUNT(issue.card_no) < 5 THEN 'Active' ELSE 'Inactive' END AS account_status
+FROM dmql.card
+LEFT JOIN dmql.issue ON card.card_no = issue.card_no
+GROUP BY card.card_no
+ORDER BY num_books_issued DESC;
